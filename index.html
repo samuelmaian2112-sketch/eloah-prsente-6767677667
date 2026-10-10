@@ -31,8 +31,8 @@
       </g>
       <circle cx="20" cy="20" r="5" fill="#ffd98a"/>
     </symbol>
-    <symbol id="cloud" viewBox="0 0 80 40">
-      <path fill="currentColor" d="M18 36a14 14 0 0 1-1-28 18 18 0 0 1 34-3 15 15 0 0 1 14 15 12 12 0 0 1-2 16z"/>
+    <symbol id="cloud" viewBox="0 0 80 44">
+      <g fill="currentColor"><circle cx="22" cy="30" r="12"/><circle cx="40" cy="22" r="16"/><circle cx="60" cy="29" r="12"/><rect x="22" y="28" width="38" height="14"/></g>
     </symbol>
 
     <!-- Mascote 1: cachorrinho-nuvem de orelhas longas (inspirado na Cinnamoroll; desenho original, não oficial) -->
@@ -78,6 +78,7 @@
 
 <!-- ============ BARRA SUPERIOR ============ -->
 <header class="barra" id="barra">
+  <div class="progresso" aria-hidden="true"><i id="progresso"></i></div>
   <span class="contador-surpresas" title="surpresinhas encontradas"><svg aria-hidden="true"><use href="#star"/></svg> <span id="achadas">0</span>/<span id="totalSecretas">0</span></span>
   <nav class="nav" aria-label="seções do presentinho">
     <a href="#carta">carta</a>
@@ -190,6 +191,8 @@
   </header>
 
   <div class="blocos">
+    <svg class="mascote m-peek e" aria-hidden="true"><use href="#cinna"/></svg>
+    <svg class="mascote m-peek d" aria-hidden="true"><use href="#kuro"/></svg>
     <article class="papel bloco rv">
       <p>Meu amor, minha vida, minha esposa maravilhosa, você é uma das coisas mais bonitas que já aconteceram comigo, e eu queria te lembrar do quanto você é maravilhosa para mim.</p>
       <p>Você não precisa me dar todos os carinhos do mundo, nem demonstrar seu amor de todas as formas possíveis o tempo inteiro. O carinho que você me dá já significa muito para mim, porque eu sei o quanto ele é especial e o quanto fico feliz com as pequenas demonstrações de amor que vêm de você. Obrigado por isso, amor. Obrigado por cada gesto, cada palavra, cada momento em que você escolhe estar comigo e por todas as vezes em que consegue fazer meu dia ficar melhor sem nem perceber.</p>
@@ -290,17 +293,17 @@
       <polygon points="214,228 320,148 426,228" fill="#ff7eb6"/>
       <polygon points="214,228 320,148 426,228 410,228 320,160 230,228" fill="#e2589c"/>
       <use href="#heart" x="304" y="186" width="32" height="32" style="color:#fff"/>
-      <circle cx="285" cy="274" r="34" fill="url(#brilhoJanela)"/>
-      <circle cx="355" cy="274" r="34" fill="url(#brilhoJanela)"/>
-      <g class="janela">
+      <g class="janela" tabindex="0" role="button" aria-label="acender ou apagar a luz da janela da esquerda">
+        <circle cx="285" cy="274" r="34" fill="url(#brilhoJanela)"/>
         <rect x="266" y="256" width="38" height="38" rx="4" fill="#ffe28a"/>
         <path d="M285 256v38M266 275h38" stroke="#e8a85c" stroke-width="2"/>
       </g>
-      <g class="janela j2">
+      <g class="janela j2" tabindex="0" role="button" aria-label="acender ou apagar a luz da janela da direita">
+        <circle cx="355" cy="274" r="34" fill="url(#brilhoJanela)"/>
         <rect x="336" y="256" width="38" height="38" rx="4" fill="#ffe28a"/>
         <path d="M355 256v38M336 275h38" stroke="#e8a85c" stroke-width="2"/>
       </g>
-      <rect x="302" y="304" width="36" height="44" rx="18 18 0 0" fill="#d9529a"/>
+      <path d="M302 348v-26a18 18 0 0 1 36 0v26z" fill="#d9529a"/>
       <circle cx="331" cy="328" r="2.5" fill="#ffd98a"/>
       <ellipse cx="320" cy="352" rx="44" ry="6" fill="#ffe28a" opacity=".35"/>
 
@@ -320,7 +323,7 @@
       <use href="#cinna" x="108" y="288" width="92" height="92"/>
       <use href="#kuro" x="472" y="290" width="88" height="88"/>
     </svg>
-    <figcaption>ilustração feita à mão em SVG — os dois personagens são inspirações originais, não desenhos oficiais</figcaption>
+    <figcaption>toque nas janelas para acender e apagar as luzes · ilustração feita à mão em SVG — os dois personagens são inspirações originais, não desenhos oficiais</figcaption>
   </figure>
 
   <div class="papel mensagem rv">
@@ -335,6 +338,7 @@
     <div class="lua" aria-hidden="true"></div>
     <div class="astro" aria-hidden="true">
       <svg class="astro-svg"><use href="#star"/></svg>
+      <button type="button" class="astro-btn" id="astroBtn" aria-label="a estrela do centro do céu"></button>
       <svg class="astro-brilho"><use href="#sparkle"/></svg>
     </div>
     <button class="secret" style="top:12%;left:14%;color:#fff3cf" aria-label="estrelinha escondida"><svg aria-hidden="true"><use href="#star"/></svg></button>
@@ -357,6 +361,7 @@
     <p class="frase-grande centro">se eu pudesse falar todas as línguas do mundo, ainda ia querer encontrar novas maneiras de dizer que te amo</p>
     <p class="contagem"><strong id="totalIdiomas">0</strong> idiomas · <span id="reveladas">0</span> reveladas</p>
     <div class="acoes">
+      <button type="button" class="btn" id="surpresa">me surpreenda</button>
       <button type="button" class="btn" id="revelarTodas">revelar todas</button>
       <button type="button" class="btn" id="esconderTodas">esconder todas</button>
       <button type="button" class="btn" id="btnChuva">chuva de corações</button>
@@ -681,8 +686,17 @@
     'cada pedacinho daqui foi pensado em você',
     'te mando um colinho bem quentinho'
   ];
-  var secretas = $$('.secret'), achadas = new Set(), msgIdx = 0, avisouTodas = false;
+  var secretas = $$('.secret'), achadas = new Set(), msgIdx = 0, avisouTodas = false, CHAVE = 'eloah-achadas';
   $('#totalSecretas').textContent = secretas.length;
+  function gravarAchadas() {
+    try { localStorage.setItem(CHAVE, JSON.stringify(Array.from(achadas).map(function (b) { return secretas.indexOf(b); }))); } catch (e) {}
+  }
+  try {
+    JSON.parse(localStorage.getItem(CHAVE) || '[]').forEach(function (i) {
+      if (secretas[i]) { achadas.add(secretas[i]); secretas[i].classList.add('achada'); }
+    });
+    $('#achadas').textContent = achadas.size; msgIdx = achadas.size;
+  } catch (e) {}
   secretas.forEach(function (b) {
     b.addEventListener('click', function (ev) {
       ev.stopPropagation();
@@ -690,7 +704,7 @@
       burst(r.left + r.width / 2, r.top + r.height / 2, 10);
       b.classList.add('achada');
       achadas.add(b);
-      $('#achadas').textContent = achadas.size;
+      $('#achadas').textContent = achadas.size; gravarAchadas();
       var msg = MSGS[msgIdx % MSGS.length]; msgIdx++;
       if (achadas.size === secretas.length && !avisouTodas) {
         avisouTodas = true;
@@ -787,6 +801,78 @@
       if (alvo) { ev.preventDefault(); irPara(alvo, !reduce); }
     });
   });
+
+  /* ---------- barra de progresso da leitura ---------- */
+  var prog = $('#progresso');
+  function noScroll() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, window.pageYOffset / h) : 0) + ')';
+  }
+  window.addEventListener('scroll', noScroll, { passive: true });
+  noScroll();
+
+  /* ---------- rastro de brilhos na tela inicial ---------- */
+  var ultimoRastro = 0;
+  $('#inicio').addEventListener('pointermove', function (ev) {
+    var n = Date.now(); if (n - ultimoRastro < 70) return;
+    ultimoRastro = n; spark(ev.clientX, ev.clientY);
+  });
+
+  /* ---------- janelas da casinha: acender e apagar ---------- */
+  $$('.janela').forEach(function (g) {
+    function alternarLuz() {
+      var apagou = g.classList.toggle('apagada');
+      aviso(apagou ? 'boa noite, casinha 🌙' : 'luzinha acesa na nossa casinha 💛');
+    }
+    g.addEventListener('click', alternarLuz);
+    g.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); alternarLuz(); } });
+  });
+
+  /* ---------- céu: estrela cadente e estrela central ---------- */
+  function cadente() {
+    if (paused() || document.hidden) return;
+    var r = ceu.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) return;
+    var s = document.createElement('i');
+    s.className = 'cadente';
+    s.style.top = rnd(6, 38).toFixed(1) + '%';
+    s.style.left = rnd(45, 92).toFixed(1) + '%';
+    ceu.appendChild(s);
+    setTimeout(function () { s.remove(); }, 1700);
+  }
+  setInterval(cadente, 6500);
+  $('#astroBtn').addEventListener('click', function (ev) {
+    burst(ev.clientX || window.innerWidth / 2, ev.clientY || window.innerHeight / 3, 14);
+    aviso('uma estrelinha só nossa, guardada dentro desse céu ✨');
+  });
+
+  /* ---------- "me surpreenda": revela uma declaração aleatória ---------- */
+  $('#surpresa').addEventListener('click', function () {
+    var fechadas = cards.filter(function (c) { return c.getAttribute('aria-pressed') !== 'true'; });
+    if (!fechadas.length) { aviso('você já revelou todas — e eu ainda ia querer achar mais jeitos de dizer 💗'); return; }
+    var c = fechadas[Math.floor(Math.random() * fechadas.length)], i = cards.indexOf(c);
+    var r = c.getBoundingClientRect();
+    if (r.top < 90 || r.bottom > window.innerHeight - 20) {
+      window.scrollTo({ top: r.top + window.pageYOffset - window.innerHeight / 3, behavior: reduce ? 'auto' : 'smooth' });
+    }
+    setTimeout(function () {
+      definir(c, i, true); atualizaContagem();
+      var r2 = c.getBoundingClientRect(); burst(r2.left + r2.width / 2, r2.top + r2.height / 2, 10);
+    }, reduce ? 0 : 550);
+  });
+
+  /* ---------- um pequeno abraço de brilhos ao chegar no final ---------- */
+  if ('IntersectionObserver' in window) {
+    var ioFinal = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) {
+          for (var k = 0; k < 4; k++) setTimeout(function () { burst(rnd(60, window.innerWidth - 60), rnd(120, window.innerHeight - 120), 8); }, k * 280);
+          ioFinal.disconnect();
+        }
+      });
+    }, { threshold: 0.45 });
+    ioFinal.observe($('.final-msg'));
+  }
 
   criarFloaters();
 })();
